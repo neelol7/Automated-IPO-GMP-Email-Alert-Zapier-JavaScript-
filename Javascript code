@@ -1,0 +1,36 @@
+const html = inputData.html;
+
+// isolate table rows
+const rows = [...html.matchAll(/<tr>([\s\S]*?)<\/tr>/gi)];
+
+let lines = [];
+
+for (let row of rows) {
+  const cols = [...row[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
+    .map(c => c[1].replace(/<[^>]+>/g, "").trim());
+
+  // IPO Watch table structure
+  if (cols.length >= 5 && cols[0] !== 'IPO Name') {
+    lines.push(
+`IPO Name: ${cols[0]}
+GMP: ${cols[1]}
+Price: ${cols[2]}
+Review: ${cols[4]}
+Listing gain: ${cols[3]}
+Date: ${cols[5]}
+Type: ${cols[6]}
+-----------------------`
+    );
+  }
+}
+
+// fallback safety
+if (lines.length === 0) {
+  return {
+    email_body: "No IPO data found today on IPO Watch."
+  };
+}
+
+return {
+  email_body: lines.join("\n")
+};
